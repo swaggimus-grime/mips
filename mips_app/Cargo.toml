@@ -1,0 +1,9 @@
+[package]
+name = "mips_app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mips_lib = { path = "../mips_lib" }
+winit = "0.29"
+thiserror = "2.0.11"
