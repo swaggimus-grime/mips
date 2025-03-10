@@ -1,17 +1,23 @@
-use mips_lib::Context;
+use std::error::Error;
+use winit::event_loop::{ControlFlow, EventLoop};
+use crate::core::app::App;
 
-mod window;
-mod app;
+mod core;
+mod gfx;
 mod error;
 
-fn main() {
-    match app::App::start() {
-        Ok(app) => {
-            //app.insert_disc(Path::new());
+fn main() -> Result<(), impl Error> {
+    let event_loop = EventLoop::new().unwrap();
 
-        },
-        Err(e) => {
-            panic!("The app failed: {:?}", e);
-        }
-    }
+    // ControlFlow::Poll continuously runs the event loop, even if the OS hasn't
+    // dispatched any events. This is ideal for games and similar applications.
+    event_loop.set_control_flow(ControlFlow::Poll);
+
+    // ControlFlow::Wait pauses the event loop if no events are available to process.
+    // This is ideal for non-game applications that only update in response to user
+    // input, and uses significantly less power/CPU time than ControlFlow::Poll.
+    event_loop.set_control_flow(ControlFlow::Wait);
+
+    let mut app = App::new(&event_loop);
+    event_loop.run_app(&mut app)
 }

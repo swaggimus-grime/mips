@@ -1,10 +1,10 @@
+use std::io;
 use thiserror::Error;
-use winit::error::OsError;
 
-pub type Result<T> = ::std::result::Result<T, MipsError>;
+pub type Result<T> = ::std::result::Result<T, AppError>;
 
 #[derive(Error, Debug)]
-pub enum MipsError {
-    #[error("Failed to build window")]
-    WindowBuildError(#[from] OsError)
+pub enum AppError {
+    #[error("Window failed to build: {0}")]
+    WindowBuildFailure(String)
 }
