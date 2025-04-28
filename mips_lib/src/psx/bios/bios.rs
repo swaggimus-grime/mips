@@ -1,7 +1,7 @@
 use crate::error::*;
 use crate::psx::addressable::{AccessWidth, Addressable};
+use crate::psx::bios::metadata;
 use crate::psx::bios::metadata::{lookup_blob, Metadata};
-use crate::psx::ioable::Loadable;
 use crate::util::ds::box_slice::*;
 
 pub struct Bios {
@@ -12,13 +12,13 @@ pub struct Bios {
 impl Bios {
     /// Create a BIOS image from `binary` and attempt to match it with an entry in the database. If
     /// no match can be found return an error.
-    pub fn new(rom: BoxSlice<u8, BIOS_SIZE>) -> Result<Bios> {
+    pub fn new(rom: BoxSlice<u8, BIOS_SIZE>) -> MipsResult<Bios> {
         match lookup_blob(&rom) {
             Some(metadata) => Ok(Bios {
                 rom,
                 metadata,
             }),
-            None => Err(MipsError::UnknownBios),
+            None => Err(MipsError::UnknownBios(String::from("Bios not supported")))
         }
     }
 
@@ -31,37 +31,36 @@ impl Bios {
     pub fn rom(&self) -> &[u8; BIOS_SIZE] {
         &self.rom
     }
-}
 
-impl Loadable<u8> for Bios {
-    fn load<const N: usize>(&self, offset: usize) -> [u8; N] {
-        let bytes = &self.rom.as_slice()[offset..offset + N];
-        let mut r: [u8; N] = [0; N];
-        r.clone_from_slice(bytes);
-        return r;
-    }
-}
+    /// Creates a BIOS instance with content set to all 0s.
+    #[allow(dead_code)]
+    pub fn new_dummy() -> Bios {
+        let rom = BoxSlice::from_vec(vec![0; BIOS_SIZE]);
 
-impl Loadable<u32> for Bios {
-    fn load<const N: usize>(&self, offset: usize) -> [u32; N] {
-        let size = u32::size();
-        let bytes = &self.rom.as_slice()[offset..offset + N * size];
-        let mut r: [u32; N] = [0; N];
-        for i in 0..N {
-            let i_unit = i * size;
-            let b0 = bytes[i_unit] as u32;
-            let b1 = bytes[i_unit + 1] as u32;
-            let b2 = bytes[i_unit + 2] as u32;
-            let b3 = bytes[i_unit + 3] as u32;
-            r[i] = b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+        Bios {
+            rom,
+            metadata: &metadata::DATABASE[0],
         }
-        return r;
     }
-}
 
-impl Loadable<u16> for Bios {
-    fn load<const N: usize>(&self, offset: usize) -> [u16; N] {
-        todo!();
+    /// Attempt to modify the BIOS ROM to replace the call to the code
+    /// responsible for the boot logo animations by the provided
+    /// instruction.
+    pub fn patch_animation_jump_hook(&mut self,
+                                     instruction: u32) -> Result<(), ()> {
+        match self.metadata.animation_jump_hook {
+            Some(h) => {
+                let h = h as usize;
+
+                self.rom[h]     = instruction as u8;
+                self.rom[h + 1] = (instruction >> 8) as u8;
+                self.rom[h + 2] = (instruction >> 16) as u8;
+                self.rom[h + 3] = (instruction >> 24) as u8;
+
+                Ok(())
+            }
+            None => Err(())
+        }
     }
 }
 

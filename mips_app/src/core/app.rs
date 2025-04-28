@@ -6,14 +6,16 @@ use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::window::{Window, WindowId};
 use mips_lib::Mips;
 use crate::error::*;
+use crate::gfx::Gfx;
 
 pub struct App {
-    mips: Mips,
+    pub mips: Box<Mips>,
     ctx: Option<Ctx>
 }
 
 pub struct Ctx {
     window: Arc<Window>,
+    gfx: Gfx
 }
 
 impl App {
@@ -21,7 +23,7 @@ impl App {
         let sys_dir = env::current_dir().unwrap();
         
         App {
-            mips: Mips::new(sys_dir.as_path()).unwrap(),
+            mips: Mips::new(sys_dir.as_path(), None).unwrap(),
             ctx: None,
         }
     }
@@ -35,7 +37,8 @@ impl ApplicationHandler for App {
                 .unwrap(),
         );
         self.ctx = Some(Ctx { 
-            window
+            window,
+            gfx: Gfx::new()
         });
     }
 
@@ -47,6 +50,9 @@ impl ApplicationHandler for App {
             },
             WindowEvent::RedrawRequested => {
                 self.mips.update();
+                if let Some(ctx) = &self.ctx {
+                    
+                }
             }
             _ => (),
         }

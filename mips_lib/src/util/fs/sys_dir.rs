@@ -1,6 +1,9 @@
+use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
+use log::Metadata;
 use crate::error::*;
 use crate::psx::bios::bios::BIOS_SIZE;
+use crate::psx::cd::CDC_ROM_SIZE;
 
 pub struct SysDir {
     root_dir: PathBuf,
@@ -13,31 +16,56 @@ impl SysDir {
         }
     }
     
-    pub fn search(&self, searchFor: SearchFor) -> Result<PathBuf> {
-        let mut root_dir = self.root_dir.clone();
-        root_dir.push(match searchFor {
-            SearchFor::Bios => "assets/roms"
-        });
-        let dir = ::std::fs::read_dir(root_dir).unwrap();
+    pub fn search(&self, searchFor: SearchFor) -> MipsResult<PathBuf> {
+        let assets_dir = self.root_dir.join("assets");
+        let roms_dir = assets_dir.join("roms");
+        let roms_path = roms_dir.as_path();
+        let target_path = match searchFor {
+            SearchFor::CdcFirmware => find(roms_path,|e| {
+                let md = e.metadata().unwrap();
+                return md.is_file() && md.len() == CDC_ROM_SIZE as u64;
+            }),
+            SearchFor::Bios => find(roms_path, |e| {
+                let md = e.metadata().unwrap();
+                return md.is_file() && md.len() == BIOS_SIZE as u64;
+            }),
+            SearchFor::Games => find(roms_path, |e| {
+                let md = e.metadata().unwrap();
+                return md.is_dir() && e.path().file_name().unwrap() == "games";
+            }),
+            SearchFor::Executables => find(assets_dir.as_path(), |e| {
+                let md = e.metadata().unwrap();
+                return md.is_dir() && e.path().file_name().unwrap() == "exe";
+            }),
+        };
         
-        for entry in dir {
-            let entry = entry.unwrap();
-            let path = entry.path();
-            let md = entry.metadata().unwrap();
-            if !md.is_file() {
-                continue;
-            }
-            let valid = match searchFor {
-                SearchFor::Bios => md.len() == BIOS_SIZE as u64
-            };
-            if valid {
-                return Ok(path);
-            }
+        if let Some(path) = target_path {
+            return Ok(path);
         }
-        Err(MipsError::FileNotFound("Could not find file".to_string()))
+        
+        Err(MipsError::FileOrDirNotFound("Could not find file".to_string()))
     }
 }
 
+fn find<F>(path: &Path, valid_predicate: F) -> Option<PathBuf>
+where
+    F: Fn(&DirEntry) -> bool
+{
+    let dir = ::std::fs::read_dir(path).unwrap();
+    for entry in dir {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if valid_predicate(&entry) {
+            return Some(path);
+        }
+    }
+    None
+}
+
 pub enum SearchFor {
-    Bios
+    Bios,
+    CdcFirmware,
+    Games,
+    Executables,
 }

@@ -17,6 +17,9 @@ pub struct Metadata {
     pub version_major: u8,
     pub version_minor: u8,
     pub region: Region,
+    /// This value can be set to `None` if the correct address has not
+    /// been determined for this particular BIOS.
+    pub animation_jump_hook: Option<u32>,
 }
 
 /// Attempt to find the metadata for the given BIOS binary blob.  Returns None if this BIOS is not
@@ -41,7 +44,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 1,
         version_minor: 0,
         region: Region::Japan,
-
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -52,7 +55,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 1,
         version_minor: 1,
         region: Region::Japan,
-
+        animation_jump_hook: Some(0x6990),
     },
     Metadata {
         sha256: [
@@ -63,7 +66,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 0,
         region: Region::NorthAmerica,
-
+        animation_jump_hook: Some(0x6FF0),
     },
     Metadata {
         sha256: [
@@ -74,6 +77,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 0,
         region: Region::Europe,
+        animation_jump_hook: None,
 
     },
     Metadata {
@@ -85,6 +89,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 1,
         region: Region::Japan,
+        animation_jump_hook: None,
 
     },
     Metadata {
@@ -96,6 +101,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 1,
         region: Region::NorthAmerica,
+        animation_jump_hook: Some(0x6FF0),
     },
     Metadata {
         sha256: [
@@ -106,6 +112,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 1,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -116,6 +123,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 2,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -126,6 +134,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 2,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -136,6 +145,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 2,
         region: Region::NorthAmerica,
+        animation_jump_hook: Some(0x6990),
     },
     Metadata {
         sha256: [
@@ -146,6 +156,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 2,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -156,6 +167,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 2,
         version_minor: 2,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -166,6 +178,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 3,
         version_minor: 0,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -176,6 +189,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 3,
         version_minor: 0,
         region: Region::NorthAmerica,
+        animation_jump_hook: Some(0x6990),
     },
     Metadata {
         sha256: [
@@ -186,6 +200,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 3,
         version_minor: 0,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -196,6 +211,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 3,
         version_minor: 0,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -206,6 +222,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 0,
         region: Region::Japan,
+        animation_jump_hook: Some(0x6990),
     },
     Metadata {
         sha256: [
@@ -216,6 +233,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 1,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -226,6 +244,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 1,
         region: Region::NorthAmerica,
+        animation_jump_hook: Some(0x6FF0),
     },
     Metadata {
         sha256: [
@@ -236,6 +255,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 1,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -246,6 +266,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 3,
         region: Region::Japan,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -256,6 +277,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 4,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
     Metadata {
         sha256: [
@@ -266,6 +288,7 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 5,
         region: Region::NorthAmerica,
+        animation_jump_hook: Some(0x6FF0),
     },
     Metadata {
         sha256: [
@@ -276,5 +299,6 @@ pub static DATABASE: [Metadata; 24] = [
         version_major: 4,
         version_minor: 5,
         region: Region::Europe,
+        animation_jump_hook: None,
     },
 ];

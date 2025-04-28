@@ -5,8 +5,14 @@ edition = "2021"
 
 [dependencies]
 mips_lib = { path = "../mips_lib" }
-vulkano = "0.35.1"
-winit = "0.30.9"
+minifb = { version = "0.28.0", optional = true }
+vulkano = { version = "0.35.1", optional = true }
+vulkano-shaders = { version = "0.35.0", optional = true }
+winit =  { version = "0.30.9", optional = true }
 thiserror = "2.0.11"
-anyhow = "1.0.97"
-log = "0.4.26"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
+
+[features]
+rasterizer-software = ["minifb"]
+rasterizer-vulkan = ["vulkano", "vulkano-shaders", "winit"]
