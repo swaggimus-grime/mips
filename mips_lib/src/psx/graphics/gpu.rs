@@ -671,7 +671,7 @@ fn read(bus: &mut Bus) -> u32 {
                     *vram_load = Some((frame, 0));
                     vram_load.as_mut().unwrap()
                 }
-                Some(ref mut s) => s,
+                Some(s) => s,
             };
 
             // If we reach this point we should have at least one pixel left.

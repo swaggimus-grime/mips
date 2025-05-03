@@ -1,0 +1,8 @@
+services:
+  mips:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./assets:/app/assets:ro  # Optional for development to hot-reload assets
+    command: ["./mips_app"]

@@ -1,7 +1,0 @@
-struct Shader {
-    
-}
-
-impl Shader {
-    
-}

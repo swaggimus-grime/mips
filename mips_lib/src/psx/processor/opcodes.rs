@@ -1,7 +1,7 @@
 use log::{info, warn};
 use crate::psx::bus::Bus;
 use crate::psx::processor::cop0::Exception;
-use crate::psx::processor::{cop0, cpu, ClockCycle, RegisterIndex};
+use crate::psx::processor::{cop0, ClockCycle, RegisterIndex};
 use crate::psx::processor::cpu::{exception, load, store};
 use crate::psx::processor::instruction::Instruction;
 

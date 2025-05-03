@@ -1,18 +1,14 @@
 [package]
 name = "mips_app"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 mips_lib = { path = "../mips_lib" }
-minifb = { version = "0.28.0", optional = true }
-vulkano = { version = "0.35.1", optional = true }
-vulkano-shaders = { version = "0.35.0", optional = true }
-winit =  { version = "0.30.9", optional = true }
 thiserror = "2.0.11"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
+sdl3 = { version = "0.14.26", features = ["build-from-source"] }
+bytemuck = "1.23.0"
 
 [features]
-rasterizer-software = ["minifb"]
-rasterizer-vulkan = ["vulkano", "vulkano-shaders", "winit"]

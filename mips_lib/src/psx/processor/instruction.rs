@@ -1,5 +1,4 @@
 use std::fmt;
-use std::fmt::{Display, Formatter};
 use crate::psx::processor::RegisterIndex;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Copy)]

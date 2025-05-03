@@ -1,14 +1,11 @@
 use std::option::Option;
 use std::cmp::min;
-use std::ops::DerefMut;
 use log::{info, warn};
 use crate::error::MipsResult;
 use crate::psx::addressable::{AccessWidth, Addressable};
 use crate::psx::bios::bios::Bios;
 use crate::psx::graphics::gpu::{Gpu, VideoStandard};
-use crate::psx::memory::mem_ctrl::*;
 use crate::psx::processor::{cpu, irq, ClockCycle};
-use crate::psx::memory::ram::Ram;
 use crate::psx::memory::scratch_pad::ScratchPad;
 use crate::psx::processor::cop0::Cop0;
 use crate::psx::sound::spu::Spu;
@@ -28,7 +25,6 @@ use crate::psx::processor::gte::Gte;
 use crate::psx::sound::spu;
 use crate::psx::timers::Timers;
 use crate::psx::tty::Tty;
-use crate::util::ds::box_slice::BoxSlice;
 
 pub struct Bus {
     pub cpu: Cpu,
