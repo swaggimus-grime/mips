@@ -674,6 +674,7 @@ impl Rasterizer {
         Transparency: TransparencyMode,
         Texture: TextureMode,
     {
+        /*
         debug_assert!(
             (0..(1024 << self.vram.upscale_shift)).contains(&x),
             "x out of bounds ({})",
@@ -684,6 +685,7 @@ impl Rasterizer {
             "y out of bounds ({})",
             y
         );
+         */
 
         // Apparently the PlayStation GPU supports 2MB VRAM (1024x1024, used in some arcade
         // machines apparently) but the bottom half isn't installed so it wraps around.

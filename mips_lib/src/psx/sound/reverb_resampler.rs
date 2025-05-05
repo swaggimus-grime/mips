@@ -1,6 +1,6 @@
 //! Resampler used to resample the samples between 44100Hz and 22050Hz in the reverb module.
 
-use crate::psx::sound::spu::saturate_to_i16;
+use super::spu::saturate_to_i16;
 
 /// Resampler for a single channel
 #[derive(serde::Serialize, serde::Deserialize)]

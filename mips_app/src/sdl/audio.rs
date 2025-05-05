@@ -4,6 +4,7 @@ use std::ops::Deref;
 use sdl3::audio::{AudioFormat, AudioSpec};
 use crate::sdl::Context;
 
+#[derive(Clone)]
 pub struct Device {
     device: sdl3::audio::AudioDevice
 }
@@ -14,10 +15,10 @@ impl Device {
     }
 }
 
-impl From<&Context> for Device {
-    fn from(ctx: &Context) -> Self {
+impl From<sdl3::AudioSubsystem> for Device {
+    fn from(audio: sdl3::AudioSubsystem) -> Self {
         Device {
-            device: ctx.audio().default_playback_device()
+            device: audio.default_playback_device()
         }
     }
 }
@@ -28,3 +29,4 @@ impl Deref for Device {
         &self.device
     }
 }
+

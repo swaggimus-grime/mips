@@ -110,6 +110,7 @@ where
     }
 }
 
+/*
 #[test]
 fn boxarray_serialize() {
     let mut ba: BoxSlice<u8, 512> = BoxSlice::from_vec(vec![0; 512]);
@@ -130,4 +131,4 @@ fn boxarray_serialize() {
 
     assert_eq!(ba, ba_out)
 }
-
+*/

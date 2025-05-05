@@ -17,3 +17,4 @@ lto = true
 panic = 'abort'
 incremental = false
 overflow-checks = false
+opt-level = 3

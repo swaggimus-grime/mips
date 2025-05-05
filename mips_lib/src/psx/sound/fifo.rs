@@ -64,4 +64,3 @@ impl Index<usize> for DecoderFifo {
         &self.buffer[idx]
     }
 }
-

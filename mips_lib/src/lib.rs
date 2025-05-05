@@ -21,7 +21,7 @@ use crate::psx::bios::bios::{Bios, BIOS_SIZE};
 use crate::psx::cd::CDC_ROM_SIZE;
 use crate::psx::cd::disc::Disc;
 use crate::psx::exe::Exe;
-use crate::psx::graphics::rasterizer::handle::Frame;
+pub use crate::psx::graphics::rasterizer::handle::Frame;
 use crate::settings::mips::MipsSettings;
 use crate::util::ds::box_slice::BoxSlice;
 
