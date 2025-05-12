@@ -1,6 +1,7 @@
 pub mod canvas;
 
 use std::ops::Deref;
+use tracing::instrument::WithSubscriber;
 use crate::sdl;
 
 pub struct Window {
@@ -31,6 +32,7 @@ impl Window {
         self.wnd.size_in_pixels().1
     }
 }
+
 
 impl Deref for Window {
     type Target = sdl3::video::Window;

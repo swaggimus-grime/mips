@@ -1,20 +1,32 @@
+use std::collections::HashMap;
 use std::env;
+use std::ops::Deref;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use sdl3::event::EventType;
 use tracing::info;
 use mips_lib::Mips;
 use crate::sdl;
+use crate::sdl::input::DeviceType;
+use crate::ui::UI;
 
 pub struct App {
     pub mips: Box<Mips>,
     ctx: sdl::Context,
+    pub event_pump: sdl::evt::EventPump,
     wnd: sdl::wnd::Window,
+    pub running: bool,
+    ports: [sdl::input::Port; 2],
+    pub controllers: sdl::input::ControllerMap,
+    ui: UI
 }
 
 impl App {
     pub fn new() -> Self {
         let ctx = sdl::Context::new();
         let wnd = sdl::wnd::Window::new(&ctx);
+        let event_pump = sdl::evt::EventPump::from(&ctx);
 
         let sys_dir = env::current_dir().unwrap();
 
@@ -24,8 +36,20 @@ impl App {
         App {
             mips: Mips::new(sys_dir.as_path(), Some("Silent Hill (USA).cue")).unwrap(),
             ctx,
-            wnd
+            event_pump,
+            wnd,
+            running: true,
+            ports: [
+                sdl::input::Port::new(), 
+                sdl::input::Port::new(),
+            ],
+            controllers: sdl::input::ControllerMap::new(),
+            ui: UI::new()
         }
+    }
+    
+    pub fn on_resize(&mut self, w: i32, h: i32) {
+        
     }
 
     pub fn run(&mut self) {
@@ -34,8 +58,15 @@ impl App {
         use sdl3::sys::pixels::SDL_PixelFormat;
 
         let mut canvas = sdl::wnd::canvas::Canvas::from(&self.wnd);
-        let mut event_pump = sdl::evt::EventPump::from(&self.ctx);
+        
         let texture_creator = canvas.deref().texture_creator();
+        
+        if let Some(port) = self.ports.get_mut(0) {
+            let config = sdl::input::Config::from("assets/config/profile.input.ini".as_ref());
+            port.connect_controller(self.controllers.keyboard());
+            port.load_config(config);
+            self.mips.connect_gamepad(0, DeviceType::Keyboard);
+        }
 
         // Audio stream: must be created and used in main thread
         let audio = self.ctx.audio();
@@ -55,10 +86,10 @@ impl App {
         let mut last_frame = Instant::now();
         
         // Main loop
-        loop {
+        while self.running {
             let frame_start = Instant::now();
             
-            event_pump.poll();
+            sdl::evt::pump::poll(self);
 
             audio_stream.enqueue(self.mips.output_audio_samples());
             self.mips.clear_audio_samples();
@@ -85,6 +116,12 @@ impl App {
                 canvas.copy(&texture);
                 canvas.present();
             }
+            
+            self.ui.update();
+            
+            let btn_states = self.ports[0].inputs();
+            self.mips.poll_gamepads(btn_states);
+            self.mips.refresh_gamepads();
 
             // Frame timing
             let elapsed = frame_start.elapsed();

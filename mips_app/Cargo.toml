@@ -10,5 +10,11 @@ tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
 sdl3 = { version = "0.14.26", features = ["build-from-source"] }
 bytemuck = "1.23.0"
+serde = { version = "1.0.218", features = ["derive"] }
+rust-ini = "0.21"
+egui = "0.31.1"
+egui-wgpu = "0.31.1"
+num-derive = "0.4"
+num-traits = "0.2"
 
 [features]

@@ -1,10 +1,11 @@
 use log::{error, info, warn};
+use num_derive::FromPrimitive;
 use crate::psx::pad_memcard::devices::DeviceInterface;
 use crate::psx::pad_memcard::DsrState;
 
 /// Digital buttons on a PlayStation controller. The value assigned to each button is the bit
 /// position in the 16bit word returned in the serial protocol
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, FromPrimitive)]
 pub enum Button {
     Select = 0,
     L3 = 1,

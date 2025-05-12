@@ -24,7 +24,6 @@ impl StreamWithCallback {
                 guard.queue.push_back(data.to_vec());
             }
         }
-        self.resume();
     }
 }
 

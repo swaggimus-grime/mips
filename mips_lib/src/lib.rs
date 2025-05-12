@@ -8,6 +8,9 @@ mod settings;
 mod mem_card;
 mod bitwise;
 
+pub use crate::psx::graphics::rasterizer::handle::Frame;
+pub use crate::psx::pad_memcard::devices::gamepad::{ButtonState, Button};
+
 use std::ops::DerefMut;
 use util::fs::sys_dir::{SysDir, SearchFor};
 use util::fs::file::bin;
@@ -21,9 +24,19 @@ use crate::psx::bios::bios::{Bios, BIOS_SIZE};
 use crate::psx::cd::CDC_ROM_SIZE;
 use crate::psx::cd::disc::Disc;
 use crate::psx::exe::Exe;
-pub use crate::psx::graphics::rasterizer::handle::Frame;
+use crate::psx::pad_memcard::devices::{DeviceInterface, DisconnectedDevice};
+use crate::psx::pad_memcard::devices::gamepad::{DigitalPad, DualShock};
 use crate::settings::mips::MipsSettings;
 use crate::util::ds::box_slice::BoxSlice;
+
+pub type ButtonQueue = Vec<(ButtonState, Button)>;
+
+#[derive(Hash, Copy, Clone, Eq, PartialEq, Debug)]
+pub enum DeviceType {
+    Unknown,
+    Keyboard,
+    DualShock,
+}
 
 pub struct Mips {
     bus: Box<Bus>,
@@ -36,12 +49,12 @@ pub struct Mips {
 impl Mips {
     pub fn new(sys_dir: &Path, game_path: Option<&str>) -> MipsResult<Box<Mips>> {
         let sys_dir = SysDir::new(sys_dir);
-        
+
         let mut cdc_firmware = {
             let cdc_firmware_path = sys_dir.search(SearchFor::CdcFirmware)?;
             open_cdc_firmware(cdc_firmware_path.as_path())?
         };
-        
+
         //let test_exe = {
         //    let exe_path = sys_dir.search(SearchFor::Executables)?;
         //    let test_exe_path = exe_path.join("psxtest_cpu.exe");
@@ -63,7 +76,7 @@ impl Mips {
                 None => None
             }
         };
-        
+
         Ok(Box::new(Mips {
             bus: Box::new(Bus::new(bios, *cdc_firmware, disc)?),
             settings: MipsSettings::default(),
@@ -71,7 +84,7 @@ impl Mips {
             sys_dir
         }))
     }
-    
+
     pub fn update(&mut self) {
         self.bus.update();
     }
@@ -79,22 +92,22 @@ impl Mips {
     pub fn output_frame(&mut self) -> Option<Frame> {
         self.bus.take_frame()
     }
-    
+
     pub fn output_audio_samples(&mut self) -> &[i16] {
         self.bus.get_audio_samples()
     }
-    
+
     pub fn clear_audio_samples(&mut self) {
         self.bus.clear_audio_samples()
     }
-    
+
     pub fn insert_disc(&mut self, disc_path: &str) -> MipsResult<()> {
         let disc = {
             let games_path = self.sys_dir.search(SearchFor::Games)?;
             let disc_path = games_path.join(disc_path);
             open_disc(disc_path.as_path())?
         };
-        
+
         self.bus.insert_disc(disc);
         Ok(())
     }
@@ -109,14 +122,47 @@ impl Mips {
         }
     }
 
-    pub fn poll_gamepads(&mut self) {
+    pub fn poll_gamepads(&mut self, button_states: ButtonQueue) {
+        // Refresh pads
+        let gamepads = self.bus.pad_memcard.gamepads_mut();
+
+        let device = gamepads[0].device_mut();
+
+        for (state, button) in button_states.iter() {
+            device.set_button_state(*button, *state);
+        }
+    }
+    
+    pub fn refresh_gamepads(&mut self) {
         // Refresh pads
         let mut gamepads = self.bus.pad_memcard.gamepads_mut();
         for gp in gamepads.iter_mut() {
             let device = gp.device_mut();
-
             device.new_frame();
         }
+    }
+    
+    pub fn connect_gamepad(&mut self, port: usize, mut device_type: DeviceType) {
+        let gamepads = self.bus.pad_memcard.gamepads_mut();
+
+        let new_pad: Box<dyn DeviceInterface> = match device_type {
+            DeviceType::Unknown => Box::new(DisconnectedDevice),
+            DeviceType::Keyboard => Box::new(DigitalPad::new()),
+            DeviceType::DualShock => Box::new(DualShock::new()),
+            _ => {
+                error!(
+                "Received bogus controller config for port {}: {:?}.\
+                               Disconnecting it",
+                port, device_type
+                );
+                device_type = DeviceType::Unknown;
+                Box::new(DisconnectedDevice)
+            }
+        };
+
+        info!("New controller on port {}: {}", port, new_pad.description());
+        
+        gamepads[port].connect_device(new_pad);
     }
 }
 

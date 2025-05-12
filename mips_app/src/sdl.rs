@@ -1,6 +1,7 @@
 pub mod wnd;
 pub(crate) mod evt;
 pub mod audio;
+pub mod input;
 
 use std::ops::Deref;
 
@@ -22,6 +23,9 @@ impl Context {
     }
     pub fn audio(&self) -> sdl3::AudioSubsystem {
         self.ctx.audio().unwrap()
+    }
+    pub fn event(&self) -> sdl3::EventSubsystem {
+        self.ctx.event().unwrap()
     }
 }
 

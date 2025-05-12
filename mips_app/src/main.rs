@@ -7,6 +7,7 @@ use crate::error::AppResult;
 mod core;
 mod error;
 mod sdl;
+mod ui;
 
 fn main() {
     let mut app = App::new();
